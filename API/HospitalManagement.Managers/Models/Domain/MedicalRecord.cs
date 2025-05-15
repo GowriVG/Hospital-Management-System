@@ -1,6 +1,7 @@
 ﻿using HospitalManagement.Models.Domain;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace HospitalManagement.Managers.Models.Domain
 {
@@ -26,7 +27,11 @@ namespace HospitalManagement.Managers.Models.Domain
         public DateTime CreatedDate { get; set; } = DateTime.Now;
 
         // Navigation Properties (Virtual allows lazy loading or eager loading)
+
+        [JsonIgnore]
         public virtual Patient Patient { get; set; }
+
+        [JsonIgnore]
         public virtual Doctor Doctor { get; set; }
 
     }

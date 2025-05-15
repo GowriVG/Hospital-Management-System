@@ -1,6 +1,7 @@
 ﻿using HospitalManagement.Data;
 using HospitalManagement.Managers.Models.Domain;
 using HospitalManagement.Models.Domain;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 
 public class MedicalRecordManager : IMedicalRecordManager
@@ -14,11 +15,10 @@ public class MedicalRecordManager : IMedicalRecordManager
 
     public async Task<List<MedicalRecord>> GetRecordsByPatientIdAsync(int patientId)
     {
-        // Fetching medical records by patientId
+        var parameter = new SqlParameter("@PatientId", patientId);
+
         var records = await _context.MedicalRecords
-            .Include(r => r.Patient)  // Include Patient info
-            .Include(r => r.Doctor)   // Include Doctor info
-            .Where(r => r.PatientId == patientId)  // Ensure comparison of PatientId
+            .FromSqlRaw("EXEC GetMedicalRecordsByPatientId @PatientId", parameter)
             .ToListAsync();
 
         if (records == null || records.Count == 0)

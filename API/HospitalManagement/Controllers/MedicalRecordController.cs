@@ -1,6 +1,7 @@
 ﻿using HospitalManagement.Data;
 using HospitalManagement.Managers.Models.Domain;
 using Microsoft.AspNetCore.Mvc;
+using HospitalManagement.Managers.Models.DTO;
 using Microsoft.EntityFrameworkCore;
 
 [ApiController]
@@ -33,26 +34,33 @@ public class MedicalRecordController : ControllerBase
 
     // POST: api/MedicalRecord
     [HttpPost]
-    public async Task<IActionResult> AddMedicalRecord([FromBody] MedicalRecord medicalRecord)
+    public async Task<IActionResult> AddMedicalRecord([FromBody] CreateMedicalRecordDto dto)
     {
         try
         {
-            // Ensure that patientId and doctorId are valid
-            var patient = await _context.Patients.FindAsync(medicalRecord.PatientId);
+            var patient = await _context.Patients.FindAsync(dto.PatientId);
             if (patient == null)
             {
                 return BadRequest("Patient not found.");
             }
 
-            var doctor = await _context.Doctors.FindAsync(medicalRecord.DoctorId);
+            var doctor = await _context.Doctors.FindAsync(dto.DoctorId);
             if (doctor == null)
             {
                 return BadRequest("Doctor not found.");
             }
 
-            // Add the medical record
-            await _medicalRecordManager.AddMedicalRecordAsync(medicalRecord);
+            var medicalRecord = new MedicalRecord
+            {
+                PatientId = dto.PatientId,
+                DoctorId = dto.DoctorId,
+                Diagnosis = dto.Diagnosis,
+                Prescription = dto.Prescription,
+                TreatmentDate = dto.TreatmentDate,
+                CreatedDate = DateTime.Now
+            };
 
+            await _medicalRecordManager.AddMedicalRecordAsync(medicalRecord);
             return Ok("Medical record added successfully.");
         }
         catch (Exception ex)

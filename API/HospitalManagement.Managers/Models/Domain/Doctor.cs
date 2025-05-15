@@ -5,33 +5,16 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace HospitalManagement.Managers.Models.Domain
 {
     [Table("Doctors")]
-    public class Doctor
+    public class Doctor : Person
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int DoctorId { get; set; }
 
         [Required]
-        [MaxLength(50)]
-        public string FirstName { get; set; }
-
-        [Required]
-        [MaxLength(50)]
-        public string LastName { get; set; }
-
-        [Required]
         [MaxLength(100)]
         public string Specialization { get; set; }
 
-        [Required]
-        [MaxLength(15)]
-        [Phone]
-        public string PhoneNumber { get; set; }
-
-        [MaxLength(100)]
-        [EmailAddress]
-        public string? Email { get; set; }
-
-        public DateTime CreatedDate { get; set; } = DateTime.Now;
+        public bool IsDeleted { get; set; } = false;
     }
 }

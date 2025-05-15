@@ -77,7 +77,7 @@ namespace HospitalManagement.Tests
         public async Task Create_ReturnsCreatedAtActionResult_WithPatient()
         {
             // Arrange
-            var newPatient = new AddPatientRequestDto { FirstName = "John Doe", Age = 30 };
+            var newPatient = new AddPatientRequestDto { FirstName = "John Doe"};
             var createdPatient = new PatientDto { PatientId = 1, FirstName = "John Doe", Age = 30 };
             _mockPatientManager.Setup(m => m.CreatePatientAsync(It.IsAny<AddPatientRequestDto>())).ReturnsAsync(createdPatient);
 
@@ -96,7 +96,7 @@ namespace HospitalManagement.Tests
         public async Task Update_ReturnsOkResult_WithUpdatedPatient()
         {
             // Arrange
-            var updatePatient = new UpdatePatientRequestDto { FirstName = "John Updated", Age = 35 };
+            var updatePatient = new UpdatePatientRequestDto { FirstName = "John Updated"};
             var updatedPatient = new PatientDto { PatientId = 1, FirstName = "John Updated", Age = 35 };
             _mockPatientManager.Setup(m => m.UpdatePatientAsync(1, It.IsAny<UpdatePatientRequestDto>())).ReturnsAsync(updatedPatient);
 
@@ -117,7 +117,7 @@ namespace HospitalManagement.Tests
             _mockPatientManager.Setup(m => m.UpdatePatientAsync(99, It.IsAny<UpdatePatientRequestDto>())).ReturnsAsync((PatientDto)null);
 
             // Act
-            var result = await _controller.Update(99, new UpdatePatientRequestDto { FirstName = "Nonexistent", Age = 40 });
+            var result = await _controller.Update(99, new UpdatePatientRequestDto { FirstName = "Nonexistent"});
 
             // Assert
             Assert.IsType<NotFoundResult>(result);

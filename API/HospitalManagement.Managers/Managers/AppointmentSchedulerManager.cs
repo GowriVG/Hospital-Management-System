@@ -3,6 +3,7 @@ using HospitalManagement.Managers.Models.DTO;
 using HospitalManagement.Managers;
 using Microsoft.EntityFrameworkCore;
 using HospitalManagement.Data;
+using Microsoft.Data.SqlClient;
 
 public class AppointmentSchedulerManager : IAppointmentScheduler
 {
@@ -67,10 +68,10 @@ public class AppointmentSchedulerManager : IAppointmentScheduler
     // Get all appointments by a specific patient
     public async Task<IEnumerable<Appointment>> GetAppointmentsByPatientIdAsync(int patientId)
     {
+        var parameter = new SqlParameter("@PatientId", patientId);
+
         var appointments = await _appointmentRepository.Appointments
-            .Include(a => a.Patient) // Include Patient data
-            .Include(a => a.Doctor)  // Include Doctor data
-            .Where(a => a.PatientId == patientId)
+            .FromSqlRaw("EXEC GetAppointmentsByPatientId @PatientId", parameter)
             .ToListAsync();
 
         if (appointments == null || !appointments.Any())
@@ -84,10 +85,10 @@ public class AppointmentSchedulerManager : IAppointmentScheduler
     // Get all appointments by a specific doctor
     public async Task<IEnumerable<Appointment>> GetAppointmentsByDoctorIdAsync(int doctorId)
     {
+        var parameter = new SqlParameter("@DoctorId", doctorId);
+
         var appointments = await _appointmentRepository.Appointments
-            .Include(a => a.Patient) // Include Patient data
-            .Include(a => a.Doctor)  // Include Doctor data
-            .Where(a => a.DoctorId == doctorId)
+            .FromSqlRaw("EXEC GetAppointmentsByDoctorId @DoctorId", parameter)
             .ToListAsync();
 
         if (appointments == null || !appointments.Any())
@@ -98,14 +99,16 @@ public class AppointmentSchedulerManager : IAppointmentScheduler
         return appointments;
     }
 
-
     // Get appointment by its ID
     public async Task<Appointment> GetAppointmentByIdAsync(int appointmentId)
     {
-        var appointment = await _appointmentRepository.Appointments
-            .Include(a => a.Patient) // Include Patient data
-            .Include(a => a.Doctor)  // Include Doctor data
-            .FirstOrDefaultAsync(a => a.AppointmentId == appointmentId);
+        var parameter = new SqlParameter("@AppointmentId", appointmentId);
+
+        var appointments = await _appointmentRepository.Appointments
+            .FromSqlRaw("EXEC GetAppointmentById @AppointmentId", parameter)
+            .ToListAsync();
+
+        var appointment = appointments.FirstOrDefault();
 
         if (appointment == null)
         {

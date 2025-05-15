@@ -2,6 +2,7 @@
 using HospitalManagement.Managers;
 using HospitalManagement.Managers.Managers;
 using HospitalManagement.Managers.Models.Domain;
+using HospitalManagement.Managers.Models.DTO;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 using System.Collections.Generic;
@@ -23,12 +24,12 @@ public class DoctorsControllerTests
     public async Task GetDoctors_ShouldReturnListOfDoctors()
     {
         // Arrange
-        var doctors = new List<Doctor>
-        {
-            new Doctor { DoctorId = 1, FirstName = "Dr. A", Specialization = "Cardiology" },
-            new Doctor { DoctorId = 2, FirstName = "Dr. B", Specialization = "Neurology" }
-        };
-        _mockDoctorManager.Setup(m => m.GetAllDoctorsAsync()).ReturnsAsync(doctors);
+        var doctorDtos = new List<DoctorDto> {
+    new DoctorDto { DoctorId = 1, FirstName = "Dr. A", Specialization = "Cardiology" },
+    new DoctorDto { DoctorId = 2, FirstName = "Dr. B", Specialization = "Neurology" }
+};
+        _mockDoctorManager.Setup(m => m.GetAllDoctorsAsync()).ReturnsAsync(doctorDtos);
+
 
         // Act
         var result = await _controller.GetDoctors();
@@ -43,8 +44,8 @@ public class DoctorsControllerTests
     public async Task GetDoctor_ExistingId_ReturnsDoctor()
     {
         // Arrange
-        var doctor = new Doctor { DoctorId = 1, FirstName = "Dr. Smith", Specialization = "Dermatology" };
-        _mockDoctorManager.Setup(m => m.GetDoctorByIdAsync(1)).ReturnsAsync(doctor);
+        var doctorDto = new DoctorDto { DoctorId = 1, FirstName = "Dr. Smith", Specialization = "Dermatology" };
+        _mockDoctorManager.Setup(m => m.GetDoctorByIdAsync(1)).ReturnsAsync(doctorDto);
 
         // Act
         var result = await _controller.GetDoctor(1);
@@ -59,7 +60,7 @@ public class DoctorsControllerTests
     public async Task GetDoctor_NonExistingId_ReturnsNotFound()
     {
         // Arrange
-        _mockDoctorManager.Setup(m => m.GetDoctorByIdAsync(99)).ReturnsAsync((Doctor)null);
+        _mockDoctorManager.Setup(m => m.GetDoctorByIdAsync(99)).ReturnsAsync((DoctorDto)null);
 
         // Act
         var result = await _controller.GetDoctor(99);
@@ -72,26 +73,29 @@ public class DoctorsControllerTests
     public async Task AddDoctor_ValidDoctor_ReturnsCreatedDoctor()
     {
         // Arrange
-        var doctor = new Doctor { DoctorId = 3, FirstName = "Dr. New", Specialization = "Oncology" };
-        _mockDoctorManager.Setup(m => m.AddDoctorAsync(doctor)).ReturnsAsync(doctor);
+        var doctor = new AddDoctorDto { FirstName = "Dr. New", Specialization = "Oncology" };
+        var createdDoctor = new DoctorDto { DoctorId = 3, FirstName = "Dr. New", Specialization = "Oncology" };
+
+        _mockDoctorManager.Setup(m => m.AddDoctorAsync(doctor)).ReturnsAsync(createdDoctor);
 
         // Act
-        var result = await _controller.AddDoctor(doctor);
+        var result = await _controller.Create(doctor);
 
         // Assert
-        var createdAtActionResult = Assert.IsType<CreatedAtActionResult>(result.Result);
-        var returnedDoctor = Assert.IsType<Doctor>(createdAtActionResult.Value);
+        var createdAtActionResult = Assert.IsType<CreatedAtActionResult>(result);
+
+        var returnedDoctor = Assert.IsType<DoctorDto>(createdAtActionResult.Value);
         Assert.Equal(3, returnedDoctor.DoctorId);
+        Assert.Equal("Dr. New", returnedDoctor.FirstName);
     }
 
     [Fact]
     public async Task UpdateDoctor_IdMismatch_ReturnsBadRequest()
     {
-        // Arrange
-        var doctor = new Doctor { DoctorId = 2, FirstName = "Mismatch", Specialization = "ENT" };
+        var updateDto = new UpdateDoctorDto { FirstName = "Mismatch", Specialization = "ENT" };
+        var result = await _controller.Update(3, updateDto);
+        Assert.IsType<BadRequestResult>(result);
 
-        // Act
-        var result = await _controller.UpdateDoctor(3, doctor);
 
         // Assert
         Assert.IsType<BadRequestResult>(result);
@@ -100,37 +104,39 @@ public class DoctorsControllerTests
     [Fact]
     public async Task UpdateDoctor_ValidDoctor_ReturnsUpdatedDoctor()
     {
-        // Arrange
-        var doctor = new Doctor { DoctorId = 2, FirstName = "Updated", Specialization = "ENT" };
-        _mockDoctorManager.Setup(m => m.UpdateDoctorAsync(2, doctor)).ReturnsAsync(doctor);
+        var updateDto = new UpdateDoctorDto { FirstName = "Updated", Specialization = "ENT" };
+        var updatedDoctor = new DoctorDto { DoctorId = 2, FirstName = "Updated", Specialization = "ENT" };
 
-        // Act
-        var result = await _controller.UpdateDoctor(2, doctor);
+        _mockDoctorManager.Setup(m => m.UpdateDoctorAsync(2, updateDto)).ReturnsAsync(updatedDoctor);
 
-        // Assert
+        var result = await _controller.Update(2, updateDto);
+
         var okResult = Assert.IsType<OkObjectResult>(result);
-        var returnedDoctor = Assert.IsType<Doctor>(okResult.Value);
+        var returnedDoctor = Assert.IsType<DoctorDto>(okResult.Value);
         Assert.Equal("Updated", returnedDoctor.FirstName);
+        Assert.Equal("ENT", returnedDoctor.Specialization);
     }
 
     [Fact]
     public async Task DeleteDoctor_ExistingId_ReturnsNoContent()
     {
         // Arrange
-        _mockDoctorManager.Setup(m => m.DeleteDoctorAsync(1)).ReturnsAsync(true);
+        var deletedDoctor = new DoctorDto { DoctorId = 1, FirstName = "Dr. Removed", Specialization = "Cardiology" };
+        _mockDoctorManager.Setup(m => m.DeleteDoctorAsync(1)).ReturnsAsync(deletedDoctor);
 
         // Act
         var result = await _controller.DeleteDoctor(1);
 
         // Assert
         Assert.IsType<NoContentResult>(result);
+
     }
 
     [Fact]
     public async Task DeleteDoctor_NonExistingId_ReturnsNotFound()
     {
         // Arrange
-        _mockDoctorManager.Setup(m => m.DeleteDoctorAsync(100)).ReturnsAsync(false);
+        _mockDoctorManager.Setup(m => m.DeleteDoctorAsync(100)).ReturnsAsync((DoctorDto)null);
 
         // Act
         var result = await _controller.DeleteDoctor(100);

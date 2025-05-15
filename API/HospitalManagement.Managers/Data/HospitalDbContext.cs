@@ -20,20 +20,24 @@ namespace HospitalManagement.Data
         public DbSet<MedicalRecord> MedicalRecords { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<Doctor>().ToTable("Doctors");
+
+            modelBuilder.Entity<Patient>().ToTable("Patients");
+
             modelBuilder.Entity<Appointment>()
                 .Property(a => a.Status)
                 .HasConversion<string>();
 
             // MedicalRecord relationships
-            //modelBuilder.Entity<MedicalRecord>()
-            //    .HasOne(r => r.Patient)
-            //    .WithMany()
-            //    .HasForeignKey(r => r.PatientId);
+            modelBuilder.Entity<MedicalRecord>()
+                .HasOne(r => r.Patient)
+                .WithMany()
+                .HasForeignKey(r => r.PatientId);
 
-            //modelBuilder.Entity<MedicalRecord>()
-            //    .HasOne(r => r.Doctor)
-            //    .WithMany()
-            //    .HasForeignKey(r => r.DoctorId);
+            modelBuilder.Entity<MedicalRecord>()
+                .HasOne(r => r.Doctor)
+                .WithMany()
+                .HasForeignKey(r => r.DoctorId);
 
             base.OnModelCreating(modelBuilder);
         }

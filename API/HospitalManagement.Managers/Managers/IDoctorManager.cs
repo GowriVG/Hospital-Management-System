@@ -1,4 +1,5 @@
 ﻿using HospitalManagement.Managers.Models.Domain;
+using HospitalManagement.Managers.Models.DTO;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,10 +10,10 @@ namespace HospitalManagement.Managers.Managers
 {
     public interface IDoctorManager
     {
-        Task<List<Doctor>> GetAllDoctorsAsync();
-        Task<Doctor> GetDoctorByIdAsync(int id);
-        Task<Doctor> AddDoctorAsync(Doctor doctor);
-        Task<Doctor> UpdateDoctorAsync(int id, Doctor doctor);
-        Task<bool> DeleteDoctorAsync(int id);
+        Task<List<DoctorDto>> GetAllDoctorsAsync();
+        Task<DoctorDto> GetDoctorByIdAsync(int id);
+        Task<DoctorDto> AddDoctorAsync(AddDoctorDto dto);
+        Task<DoctorDto> UpdateDoctorAsync(int id, UpdateDoctorDto dto);
+        Task<DoctorDto> DeleteDoctorAsync(int id);
     }
 }

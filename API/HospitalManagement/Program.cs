@@ -33,10 +33,6 @@ builder.Services.AddCors(options =>
 });
 
 
-
-
-
-
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -46,14 +42,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-
 //Use CORS middleware
 app.UseCors("AllowAll");
-
-
-
-
-
 
 app.UseHttpsRedirection();
 

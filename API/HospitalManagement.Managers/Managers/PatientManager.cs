@@ -16,9 +16,21 @@ namespace HospitalManagement.Managers
             _context = context;
         }
 
+        // Calculate age based on DateOfBirth
+        private int CalculateAge(DateTime dateOfBirth)
+        {
+            var today = DateTime.Today;
+            var age = today.Year - dateOfBirth.Year;
+            if (dateOfBirth.Date > today.AddYears(-age)) age--;  // Adjust age if birthday hasn't occurred yet this year
+            return age;
+        }
+
         public async Task<List<PatientDto>> GetAllPatientsAsync()
         {
-            var patients = await _context.Patients.ToListAsync();
+            var patients = await _context.Patients
+                .Where(p => !p.IsDeleted)
+                .ToListAsync();
+
             return patients.Select(p => new PatientDto
             {
                 PatientId = p.PatientId,
@@ -28,13 +40,16 @@ namespace HospitalManagement.Managers
                 Age = p.Age,
                 Gender = p.Gender,
                 Address = p.Address,
+                Email = p.Email,
                 PhoneNumber = p.PhoneNumber
             }).ToList();
         }
 
         public async Task<PatientDto> GetPatientByIdAsync(int id)
         {
-            var patient = await _context.Patients.FirstOrDefaultAsync(x => x.PatientId == id);
+            var patient = await _context.Patients
+                .FirstOrDefaultAsync(x => x.PatientId == id && !x.IsDeleted);
+
             if (patient == null) return null;
 
             return new PatientDto
@@ -46,6 +61,7 @@ namespace HospitalManagement.Managers
                 Age = patient.Age,
                 Gender = patient.Gender,
                 Address = patient.Address,
+                Email = patient.Email,
                 PhoneNumber = patient.PhoneNumber
             };
         }
@@ -57,10 +73,12 @@ namespace HospitalManagement.Managers
                 FirstName = addPatientRequestDto.FirstName,
                 LastName = addPatientRequestDto.LastName,
                 DateOfBirth = addPatientRequestDto.DateOfBirth,
-                Age = addPatientRequestDto.Age,
+                Age = CalculateAge(addPatientRequestDto.DateOfBirth), // Calculate age based on DOB
                 Gender = addPatientRequestDto.Gender,
                 Address = addPatientRequestDto.Address,
-                PhoneNumber = addPatientRequestDto.PhoneNumber
+                PhoneNumber = addPatientRequestDto.PhoneNumber,
+                Email = addPatientRequestDto.Email,
+                IsDeleted = false // default value
             };
 
             await _context.Patients.AddAsync(patient);
@@ -75,21 +93,42 @@ namespace HospitalManagement.Managers
                 Age = patient.Age,
                 Gender = patient.Gender,
                 Address = patient.Address,
-                PhoneNumber = patient.PhoneNumber
+                PhoneNumber = patient.PhoneNumber,
+                Email = patient.Email
             };
         }
 
         public async Task<PatientDto> UpdatePatientAsync(int id, UpdatePatientRequestDto updatePatientRequestDto)
         {
-            var patient = await _context.Patients.FirstOrDefaultAsync(x => x.PatientId == id);
+            var patient = await _context.Patients
+                .FirstOrDefaultAsync(x => x.PatientId == id && !x.IsDeleted);
+
             if (patient == null) return null;
 
-            patient.FirstName = updatePatientRequestDto.FirstName;
-            patient.LastName = updatePatientRequestDto.LastName;
-            patient.DateOfBirth = updatePatientRequestDto.DateOfBirth;
-            patient.Gender = updatePatientRequestDto.Gender;
-            patient.Address = updatePatientRequestDto.Address;
-            patient.PhoneNumber = updatePatientRequestDto.PhoneNumber;
+            // Update only fields that are provided (not null)
+            if (!string.IsNullOrWhiteSpace(updatePatientRequestDto.FirstName))
+                patient.FirstName = updatePatientRequestDto.FirstName;
+
+            if (!string.IsNullOrWhiteSpace(updatePatientRequestDto.LastName))
+                patient.LastName = updatePatientRequestDto.LastName;
+
+            if (updatePatientRequestDto.DateOfBirth.HasValue)
+            {
+                patient.DateOfBirth = updatePatientRequestDto.DateOfBirth.Value;
+                patient.Age = CalculateAge(patient.DateOfBirth);  // Recalculate age only if DOB is updated
+            }
+
+            if (!string.IsNullOrWhiteSpace(updatePatientRequestDto.Gender))
+                patient.Gender = updatePatientRequestDto.Gender;
+
+            if (!string.IsNullOrWhiteSpace(updatePatientRequestDto.Address))
+                patient.Address = updatePatientRequestDto.Address;
+
+            if (!string.IsNullOrWhiteSpace(updatePatientRequestDto.Email))
+                patient.Email = updatePatientRequestDto.Email;
+
+            if (!string.IsNullOrWhiteSpace(updatePatientRequestDto.PhoneNumber))
+                patient.PhoneNumber = updatePatientRequestDto.PhoneNumber;
 
             await _context.SaveChangesAsync();
 
@@ -99,18 +138,23 @@ namespace HospitalManagement.Managers
                 FirstName = patient.FirstName,
                 LastName = patient.LastName,
                 DateOfBirth = patient.DateOfBirth,
+                Age = patient.Age,
                 Gender = patient.Gender,
                 Address = patient.Address,
+                Email = patient.Email,
                 PhoneNumber = patient.PhoneNumber
             };
         }
 
+
         public async Task<PatientDto> DeletePatientAsync(int id)
         {
-            var patient = await _context.Patients.FirstOrDefaultAsync(x => x.PatientId == id);
+            var patient = await _context.Patients
+                .FirstOrDefaultAsync(x => x.PatientId == id && !x.IsDeleted);
+
             if (patient == null) return null;
 
-            _context.Patients.Remove(patient);
+            patient.IsDeleted = true;
             await _context.SaveChangesAsync();
 
             return new PatientDto
@@ -121,6 +165,7 @@ namespace HospitalManagement.Managers
                 DateOfBirth = patient.DateOfBirth,
                 Gender = patient.Gender,
                 Address = patient.Address,
+                Email = patient.Email,
                 PhoneNumber = patient.PhoneNumber
             };
         }

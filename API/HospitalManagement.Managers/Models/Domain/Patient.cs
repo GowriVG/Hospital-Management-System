@@ -1,23 +1,17 @@
-﻿using System;
+﻿using HospitalManagement.Managers.Models.Domain;
+using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace HospitalManagement.Models.Domain
 {
     [Table("Patients")]
-    public class Patient
+    public class Patient : Person
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int PatientId { get; set; }
 
-        [Required]
-        [MaxLength(50)]
-        public string FirstName { get; set; }
-
-        [Required]
-        [MaxLength(50)]
-        public string LastName { get; set; }
 
         [Required]
         [RegularExpression("M|F|O", ErrorMessage = "Gender must be 'M', 'F', or 'O'.")]
@@ -28,16 +22,12 @@ namespace HospitalManagement.Models.Domain
 
         public int Age { get; set; }
 
-        [Required]
-        [MaxLength(15)]
-        public string PhoneNumber { get; set; }
-
         [MaxLength(100)]
         public string? Email { get; set; }
 
         [MaxLength(255)]
         public string? Address { get; set; }
 
-        public DateTime CreatedDate { get; set; } = DateTime.Now;
+        public bool IsDeleted { get; set; } = false; // Soft delete flag
     }
 }

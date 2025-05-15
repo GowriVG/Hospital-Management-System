@@ -13,8 +13,8 @@ public class PatientManagerTests
     {
         // Arrange
         var mockManager = new Mock<IPatientManager>();
-        var input = new AddPatientRequestDto { FirstName = "John", Age = 30 };
-        var expected = new PatientDto { PatientId = 1, FirstName = "John", Age = 30 };
+        var input = new AddPatientRequestDto { FirstName = "John" };
+        var expected = new PatientDto { PatientId = 1, FirstName = "John"};
 
         mockManager.Setup(m => m.CreatePatientAsync(input))
                    .ReturnsAsync(expected);
@@ -32,7 +32,7 @@ public class PatientManagerTests
     public async Task UpdatePatient_ShouldReturnUpdatedPatient()
     {
         var mockManager = new Mock<IPatientManager>();
-        var input = new UpdatePatientRequestDto { FirstName = "Updated", Age = 35 };
+        var input = new UpdatePatientRequestDto { FirstName = "Updated"};
         var expected = new PatientDto { PatientId = 1, FirstName = "Updated", Age = 35 };
 
         mockManager.Setup(m => m.UpdatePatientAsync(1, input)).ReturnsAsync(expected);
