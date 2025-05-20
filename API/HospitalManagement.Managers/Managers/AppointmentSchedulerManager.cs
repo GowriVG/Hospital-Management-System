@@ -15,15 +15,36 @@ public class AppointmentSchedulerManager : IAppointmentScheduler
     }
 
     // Schedule a new appointment
-    public async Task<Appointment> ScheduleAppointmentAsync(AppointmentDto appointmentDto)
+    public async Task<Appointment> ScheduleAppointmentAsync(AddAppointmentDto addappointmentDto)
     {
+        // Check if patient exists and is not deleted
+        var patientExists = await _appointmentRepository.Patients
+            .AnyAsync(p => p.PatientId == addappointmentDto.PatientId && !p.IsDeleted);
+        if (!patientExists)
+        {
+            throw new Exception("Cannot schedule appointment: Patient not found or has been deleted.");
+        }
+
+        // Check if doctor exists and is not deleted
+        var doctorExists = await _appointmentRepository.Doctors
+            .AnyAsync(d => d.DoctorId == addappointmentDto.DoctorId && !d.IsDeleted);
+        if (!doctorExists)
+        {
+            throw new Exception("Cannot schedule appointment: Doctor not found or has been deleted.");
+        }
+
+        if (!Enum.TryParse<AppointmentStatus>(addappointmentDto.Status, true, out var status))
+        {
+            throw new Exception("Invalid appointment status value.");
+        }
+
         var appointment = new Appointment
         {
-            PatientId = appointmentDto.PatientId,
-            DoctorId = appointmentDto.DoctorId,
-            AppointmentDate = appointmentDto.AppointmentDate,
-            Status = appointmentDto.Status,
-            Reason = appointmentDto.Reason,
+            PatientId = addappointmentDto.PatientId,
+            DoctorId = addappointmentDto.DoctorId,
+            AppointmentDate = addappointmentDto.AppointmentDate,
+            Status = status,
+            Reason = addappointmentDto.Reason,
             CreatedDate = DateTime.UtcNow
         };
 
@@ -34,36 +55,52 @@ public class AppointmentSchedulerManager : IAppointmentScheduler
     // Update an existing appointment
     public async Task<Appointment> UpdateAppointmentAsync(int appointmentId, AppointmentUpdateDto updatedAppointmentDto)
     {
-        var existingAppointment = await _appointmentRepository.GetAppointmentByIdAsync(appointmentId);
+        var existingAppointment = await _appointmentRepository.Appointments.FirstOrDefaultAsync(a => a.AppointmentId == appointmentId && !a.IsDeleted);
+
         if (existingAppointment == null)
         {
-            throw new Exception("Appointment not found");
+            throw new Exception("Appointment not found or has been deleted.");
         }
+
+
+        if (!Enum.TryParse<AppointmentStatus>(updatedAppointmentDto.Status, true, out var status))
+        {
+            throw new Exception("Invalid appointment status value.");
+        }
+
+
 
         existingAppointment.PatientId = updatedAppointmentDto.PatientId;
         existingAppointment.DoctorId = updatedAppointmentDto.DoctorId;
         existingAppointment.AppointmentDate = updatedAppointmentDto.AppointmentDate;
-        existingAppointment.Status = updatedAppointmentDto.Status;
+        existingAppointment.Status = status;
         existingAppointment.Reason = updatedAppointmentDto.Reason;
 
         await _appointmentRepository.UpdateAppointmentAsync(existingAppointment);
         return existingAppointment;
     }
 
-    // Cancel an existing appointment
-    public async Task<bool> CancelAppointmentAsync(int appointmentId)
+    // Soft delete an existing appointment (mark as deleted)
+    public async Task<bool> DeleteAppointmentAsync(int appointmentId)
     {
-        var existingAppointment = await _appointmentRepository.GetAppointmentByIdAsync(appointmentId);
-        if (existingAppointment == null)
+        var existingAppointment = await _appointmentRepository.Appointments
+            .FirstOrDefaultAsync(a => a.AppointmentId == appointmentId);
+
+        if (existingAppointment == null || existingAppointment.IsDeleted)
         {
-            throw new Exception("Appointment not found");
+            throw new Exception("Appointment not found or already deleted");
         }
 
-        // Update the status to 'Canceled'
-        existingAppointment.Status = AppointmentStatus.Canceled;
+        // Mark the appointment as deleted
+        existingAppointment.IsDeleted = true;
+
+        // Optionally, update status
+        // existingAppointment.Status = AppointmentStatus.Deleted;
+
         await _appointmentRepository.UpdateAppointmentAsync(existingAppointment);
         return true;
     }
+
 
     // Get all appointments by a specific patient
     public async Task<IEnumerable<Appointment>> GetAppointmentsByPatientIdAsync(int patientId)
@@ -108,7 +145,12 @@ public class AppointmentSchedulerManager : IAppointmentScheduler
             .FromSqlRaw("EXEC GetAppointmentById @AppointmentId", parameter)
             .ToListAsync();
 
-        var appointment = appointments.FirstOrDefault();
+        var appointment = appointments.FirstOrDefault(a => !a.IsDeleted);
+
+        foreach (var a in appointments)
+        {
+            Console.WriteLine($"ID: {a.AppointmentId}, IsDeleted: {a.IsDeleted}");
+        }
 
         if (appointment == null)
         {
@@ -117,4 +159,22 @@ public class AppointmentSchedulerManager : IAppointmentScheduler
 
         return appointment;
     }
+    public async Task<IEnumerable<AppointmentDto>> GetAllAppointmentsAsync()
+    {
+        var appointments = await _appointmentRepository.Appointments.Where(a => !a.IsDeleted).ToListAsync();
+
+        // Map each Appointment to AppointmentDto
+        var appointmentDtos = appointments.Select(a => new AppointmentDto
+        {
+            AppointmentId = a.AppointmentId,
+            PatientId = a.PatientId,
+            DoctorId = a.DoctorId,
+            AppointmentDate = a.AppointmentDate,
+            Status = a.Status,
+            Reason = a.Reason
+        });
+
+        return appointmentDtos;
+    }
+
 }

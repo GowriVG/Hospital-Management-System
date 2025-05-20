@@ -34,5 +34,8 @@ namespace HospitalManagement.Managers.Models.Domain
         [JsonIgnore]
         public virtual Doctor Doctor { get; set; }
 
+        [JsonIgnore]
+        public bool IsDeleted { get; set; }
+
     }
 }

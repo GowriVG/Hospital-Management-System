@@ -18,12 +18,12 @@ namespace HospitalManagement.Controllers
         }
 
         // Schedule a new appointment
-        [HttpPost("schedule")]
-        public async Task<IActionResult> ScheduleAppointment([FromBody] AppointmentDto appointmentDto)
+        [HttpPost("add")]
+        public async Task<IActionResult> ScheduleAppointment([FromBody] AddAppointmentDto addAppointmentDto)
         {
             try
             {
-                var scheduledAppointment = await _appointmentScheduler.ScheduleAppointmentAsync(appointmentDto);
+                var scheduledAppointment = await _appointmentScheduler.ScheduleAppointmentAsync(addAppointmentDto);
                 return CreatedAtAction(nameof(GetAppointmentById), new { appointmentId = scheduledAppointment.AppointmentId }, scheduledAppointment);
             }
             catch (Exception ex)
@@ -48,23 +48,24 @@ namespace HospitalManagement.Controllers
         }
 
         // Cancel an appointment
-        [HttpDelete("cancel/{appointmentId}")]
-        public async Task<IActionResult> CancelAppointment(int appointmentId)
+        [HttpDelete("delete/{appointmentId}")]
+        public async Task<IActionResult> DeleteAppointment(int appointmentId)
         {
             try
             {
-                var isCancelled = await _appointmentScheduler.CancelAppointmentAsync(appointmentId);
-                if (isCancelled)
+                var result = await _appointmentScheduler.DeleteAppointmentAsync(appointmentId);
+                if (result)
                 {
-                    return NoContent();
+                    return Ok(new { message = "Appointment deleted successfully." });
                 }
-                return BadRequest("Failed to cancel appointment.");
+                return BadRequest("Failed to delete appointment.");
             }
             catch (Exception ex)
             {
                 return BadRequest(ex.Message);
             }
         }
+
 
         // Get appointments by patient
         [HttpGet("patient/{patientId}")]
@@ -82,12 +83,27 @@ namespace HospitalManagement.Controllers
             return Ok(appointments);
         }
 
-        // Get appointment by ID
         [HttpGet("{appointmentId}")]
         public async Task<IActionResult> GetAppointmentById(int appointmentId)
         {
-            var appointment = await _appointmentScheduler.GetAppointmentByIdAsync(appointmentId);
-            return appointment != null ? Ok(appointment) : NotFound();
+            try
+            {
+                var appointment = await _appointmentScheduler.GetAppointmentByIdAsync(appointmentId);
+                return Ok(appointment);
+            }
+            catch (Exception ex)
+            {
+                if (ex.Message.Contains("not found"))
+                    return NotFound(ex.Message);
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpGet]
+        public async Task <IActionResult> GetAllAppointmentsAsync()
+        {
+            var AppointmentDto = await _appointmentScheduler.GetAllAppointmentsAsync();
+            return Ok(AppointmentDto);
         }
     }
 }

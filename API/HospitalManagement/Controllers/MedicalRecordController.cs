@@ -17,39 +17,14 @@ public class MedicalRecordController : ControllerBase
         _context = context;
     }
 
-    // GET api/medicalrecord/patient/{patientId}
-    [HttpGet("patient/{patientId}")]
-    public async Task<IActionResult> GetRecordsByPatientId(int patientId)
-    {
-        try
-        {
-            var records = await _medicalRecordManager.GetRecordsByPatientIdAsync(patientId);
-            return Ok(records);
-        }
-        catch (Exception ex)
-        {
-            return NotFound(new { message = ex.Message });
-        }
-    }
 
     // POST: api/MedicalRecord
+    [HttpPost]
     [HttpPost]
     public async Task<IActionResult> AddMedicalRecord([FromBody] CreateMedicalRecordDto dto)
     {
         try
         {
-            var patient = await _context.Patients.FindAsync(dto.PatientId);
-            if (patient == null)
-            {
-                return BadRequest("Patient not found.");
-            }
-
-            var doctor = await _context.Doctors.FindAsync(dto.DoctorId);
-            if (doctor == null)
-            {
-                return BadRequest("Doctor not found.");
-            }
-
             var medicalRecord = new MedicalRecord
             {
                 PatientId = dto.PatientId,
@@ -68,4 +43,37 @@ public class MedicalRecordController : ControllerBase
             return BadRequest($"Error: {ex.Message}");
         }
     }
+
+    // GET api/medicalrecord
+    [HttpGet]
+    public async Task<IActionResult> GetAllMedicalRecords()
+    {
+        try
+        {
+            var records = await _medicalRecordManager.GetAllMedicalRecordsAsync();
+            return Ok(records);
+        }
+        catch (Exception ex)
+        {
+            return NotFound(new { message = ex.Message });
+        }
+    }
+
+    // DELETE: api/MedicalRecord/{id}
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> DeleteMedicalRecord(int id)
+    {
+        try
+        {
+            await _medicalRecordManager.DeleteMedicalRecordAsync(id);
+            //return Ok($"Medical record with ID {id} deleted successfully.");
+            return Ok(new { message = $"Medical record with ID {id} deleted successfully." });
+        }
+        catch (Exception ex)
+        {
+            return NotFound(new { message = ex.Message });
+        }
+    }
+
+
 }

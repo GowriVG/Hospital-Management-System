@@ -32,6 +32,8 @@ namespace HospitalManagement.Managers.Models.Domain
 
         public DateTime CreatedDate { get; set; } = DateTime.Now;
 
+        public bool IsDeleted { get; set; } = false;
+
         //public Doctor Doctor { get; set; }
 
         //public Patient Patient { get; set; }
