@@ -1,0 +1,56 @@
+<div class="container mt-5">
+  <h2>Add New Medical Record</h2>
+  <form [formGroup]="medicalForm" (ngSubmit)="onSubmit()">
+    
+    <div class="form-group">
+      <label for="patientId">Patient ID</label>
+      <input id="patientId" type="number" formControlName="patientId" class="form-control" />
+      <div *ngIf="medicalForm.controls['patientId'].touched && medicalForm.controls['patientId'].invalid" class="text-danger">
+        Patient ID is required.
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="doctorId">Doctor ID</label>
+      <input id="doctorId" type="number" formControlName="doctorId" class="form-control" />
+      <div *ngIf="medicalForm.controls['doctorId'].touched && medicalForm.controls['doctorId'].invalid" class="text-danger">
+        Doctor ID is required.
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="diagnosis">Diagnosis</label>
+      <input id="diagnosis" type="text" formControlName="diagnosis" class="form-control" />
+      <div *ngIf="medicalForm.controls['diagnosis'].touched && medicalForm.controls['diagnosis'].invalid" class="text-danger">
+        Diagnosis is required.
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="prescription">Prescription</label>
+      <input id="prescription" type="text" formControlName="prescription" class="form-control" />
+      <div *ngIf="medicalForm.controls['prescription'].touched && medicalForm.controls['prescription'].invalid" class="text-danger">
+        Prescription is required.
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="treatmentDate">Treatment Date</label>
+      <input id="treatmentDate" type="date" formControlName="treatmentDate" class="form-control" />
+      <div *ngIf="medicalForm.controls['treatmentDate'].touched && medicalForm.controls['treatmentDate'].invalid" class="text-danger">
+        Treatment Date is required.
+      </div>
+    </div>
+
+    <button type="submit" class="btn btn-primary mt-3">Add Medical Record</button>
+    <button type="button" class="btn btn-dark mt-3 ms-2" (click)="goBack()">Back</button>
+
+    <div *ngIf="successMessage" class="text-success mt-3">
+      {{ successMessage }}
+    </div>
+    <div *ngIf="errorMessage" class="text-danger mt-3">
+      {{ errorMessage }}
+    </div>
+
+  </form>
+</div>

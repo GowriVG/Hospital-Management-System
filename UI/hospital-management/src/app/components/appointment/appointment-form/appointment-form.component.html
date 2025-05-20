@@ -1,0 +1,72 @@
+<!-- src/app/appointment/appointment-form/appointment-form.component.html -->
+<div class="container mt-5">
+  <h2>{{ appointmentId ? 'Edit Appointment' : 'Schedule New Appointment' }}</h2>
+
+  <!-- Reactive-forms template -->
+  <form [formGroup]="appointment" (ngSubmit)="saveAppointment()">
+    <!-- Patient -->
+    <div class="form-group">
+      <label for="patientId">Patient ID</label>
+      <input
+        type="number"
+        id="patientId"
+        formControlName="patientId"
+        class="form-control"
+        placeholder="Enter patient ID"
+      />
+    </div>
+
+    <!-- Doctor -->
+    <div class="form-group">
+      <label for="doctorId">Doctor ID</label>
+      <input
+        type="number"
+        id="doctorId"
+        formControlName="doctorId"
+        class="form-control"
+        placeholder="Enter doctor ID"
+      />
+    </div>
+
+    <!-- Date & time -->
+    <div class="form-group">
+      <label for="appointmentDate">Appointment Date &amp; Time</label>
+      <input
+        type="datetime-local"
+        id="appointmentDate"
+        formControlName="appointmentDate"
+        class="form-control"
+      />
+    </div>
+
+    <!-- Status -->
+    <div class="form-group">
+      <label for="status">Status</label>
+      <select id="status" formControlName="status" class="form-control">
+        <option *ngFor="let status of statusOptions" [value]="status">
+          {{ status }}
+        </option>
+      </select>
+    </div>
+
+    <!-- Reason -->
+    <div class="form-group">
+      <label for="reason">Reason</label>
+      <input
+        id="reason"
+        formControlName="reason"
+        class="form-control"
+        placeholder="Consultation / Follow-up / …"
+      />
+    </div>
+
+    <!-- Buttons -->
+    <button type="submit" class="btn btn-primary mt-3">
+      {{ appointmentId ? 'Update Appointment' : 'Create Appointment' }}
+    </button>
+    
+    <button type="button" class="btn btn-dark mt-3 ms-2" (click)="goBack()">
+      Back
+    </button>
+  </form>
+</div>

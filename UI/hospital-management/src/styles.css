@@ -1,0 +1,22 @@
+@import "../node_modules/bootstrap/dist/css/bootstrap.min.css";
+@import "../node_modules/bootstrap-icons/font/bootstrap-icons.css";
+
+body{
+    font-family: "Montserrat", sans-serif;
+    font-optical-sizing: auto;
+}
+
+.btn{
+    transition: transform 0.4s ease, color 0.4s ease;
+}
+.btn:hover{
+    transform: translateY(-3px);
+}
+table.table-hover tbody tr:hover td {
+    background-color: #defdd3;
+  }
+
+  thead.thead-dark th {
+    background-color: #7dc79c;
+    color: black; /* optional: ensure readable text */
+  }

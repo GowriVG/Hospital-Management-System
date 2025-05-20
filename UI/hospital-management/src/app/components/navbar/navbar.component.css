@@ -1,0 +1,17 @@
+.nav-pills .nav-link.active:hover {
+    color: #000;
+    background-color: rgba(49, 223, 223);
+}
+
+.nav-pills .nav-link.active, 
+.nav-pills .show > .nav-link {
+    color: var(--bs-nav-pills-link-active-color);
+    background-color: #212529;
+    border: rgba(49, 223, 223, 0.5) 1px solid;
+}
+
+.sidebar-gradient {
+    background: black
+  }
+
+  

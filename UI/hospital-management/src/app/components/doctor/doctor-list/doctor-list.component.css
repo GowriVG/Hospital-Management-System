@@ -1,0 +1,5 @@
+.layout{
+    display: flex;
+  height: 100vh; /* full height of screen */
+  width: 100vw;
+}

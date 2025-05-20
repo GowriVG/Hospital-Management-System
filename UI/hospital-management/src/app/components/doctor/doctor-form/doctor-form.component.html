@@ -1,0 +1,91 @@
+<div class="container mt-5">
+    <h2>{{ doctorId ? 'Edit Doctor' : 'Add Doctor' }}</h2>
+    <form [formGroup]="doctorForm" (ngSubmit)="submitForm()" novalidate>
+      <div class="form-group mb-3">
+        <label for="firstName">First Name</label>
+        <input
+          id="firstName"
+          formControlName="firstName"
+          class="form-control"
+          [class.is-invalid]="
+            doctorForm.get('firstName')?.invalid && doctorForm.get('firstName')?.touched
+          "
+        />
+        <div class="invalid-feedback" *ngIf="doctorForm.get('firstName')?.errors?.['required'] && doctorForm.get('firstName')?.touched">
+          First Name is required.
+        </div>
+      </div>
+  
+      <div class="form-group mb-3">
+        <label for="lastName">Last Name</label>
+        <input
+          id="lastName"
+          formControlName="lastName"
+          class="form-control"
+          [class.is-invalid]="
+            doctorForm.get('lastName')?.invalid && doctorForm.get('lastName')?.touched
+          "
+        />
+        <div class="invalid-feedback" *ngIf="doctorForm.get('lastName')?.errors?.['required'] && doctorForm.get('lastName')?.touched">
+          Last Name is required.
+        </div>
+      </div>
+  
+      <div class="form-group mb-3">
+        <label for="specialization">Specialization</label>
+        <input
+          id="specialization"
+          formControlName="specialization"
+          class="form-control"
+          [class.is-invalid]="
+            doctorForm.get('specialization')?.invalid && doctorForm.get('specialization')?.touched
+          "
+        />
+        <div class="invalid-feedback" *ngIf="doctorForm.get('specialization')?.errors?.['required'] && doctorForm.get('specialization')?.touched">
+          Specialization is required.
+        </div>
+      </div>
+  
+      <div class="form-group mb-3">
+        <label for="phoneNumber">Phone Number</label>
+        <input
+          id="phoneNumber"
+          formControlName="phoneNumber"
+          class="form-control"
+          [class.is-invalid]="
+            doctorForm.get('phoneNumber')?.invalid && doctorForm.get('phoneNumber')?.touched
+          "
+        />
+        <div class="invalid-feedback" *ngIf="doctorForm.get('phoneNumber')?.errors?.['required'] && doctorForm.get('phoneNumber')?.touched">
+          Phone Number is required.
+        </div>
+        <div class="invalid-feedback" *ngIf="doctorForm.get('phoneNumber')?.errors?.['pattern'] && doctorForm.get('phoneNumber')?.touched">
+          Phone Number must be numeric.
+        </div>
+      </div>
+  
+      <div class="form-group mb-3">
+        <label for="email">Email</label>
+        <input
+          id="email"
+          formControlName="email"
+          class="form-control"
+          [class.is-invalid]="doctorForm.get('email')?.invalid && doctorForm.get('email')?.touched"
+        />
+        <div class="invalid-feedback" *ngIf="doctorForm.get('email')?.errors?.['required'] && doctorForm.get('email')?.touched">
+          Email is required.
+        </div>
+        <div class="invalid-feedback" *ngIf="doctorForm.get('email')?.errors?.['email'] && doctorForm.get('email')?.touched">
+          Enter a valid email address.
+        </div>
+      </div>
+  
+      <button type="submit" class="btn btn-primary mt-3">
+        {{ doctorId ? 'Update Doctor' : 'Add Doctor' }}
+      </button>
+      <button type="button" class="btn btn-dark mt-3 ms-2" (click)="goBack()">
+        Back
+      </button>
+    </form>
+  </div>
+  

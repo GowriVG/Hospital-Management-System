@@ -1,0 +1,36 @@
+<div class = "layout">
+<app-navbar></app-navbar>
+<div class="container mt-4">
+  <!-- Home Button -->
+  <div class="d-flex justify-content-end mb-3">
+    <div (click)="goToHome()"><svg class="home" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-home"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg></div>
+  </div>
+    <h2>Doctor List</h2>
+    <table class="table table-bordered">
+      <thead class="thead-dark">
+        <tr>
+          <th>First Name</th>
+          <th>Last Name</th>
+          <th>Specialization</th>
+          <th>Phone</th>
+          <th>Email</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let doctor of doctors">
+          <td>{{ doctor.firstName }}</td>
+          <td>{{ doctor.lastName }}</td>
+          <td>{{ doctor.specialization }}</td>
+          <td>{{ doctor.phoneNumber }}</td>
+          <td>{{ doctor.email }}</td>
+          <td>
+            <button class="btn btn-sm btn-warning me-2" (click)="editDoctor(doctor.doctorId)">Edit</button>
+            <button class="btn btn-sm btn-danger" (click)="deleteDoctor(doctor.doctorId)">Delete</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <button class="btn btn-primary" (click)="addDoctor()">Add New Doctor</button>
+  </div>
+</div> 

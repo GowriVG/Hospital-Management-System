@@ -1,0 +1,35 @@
+.layout{
+  display: flex;
+  height: 100vh; /* full height of screen */
+  width: 100vw;
+  overflow: hidden; /* prevents scrollbars */
+}
+
+@media screen and (min-width: 1024px) and (max-width: 1440px) {
+  img {
+    max-height: 60vh; /* slightly reduced for better fit on laptops */
+    width: 100%;
+    height: auto; /* maintain aspect ratio */
+    margin: 0 auto; /* center the image */
+    object-fit: contain;
+  }
+}
+
+/* For large monitors (screen width above 1440px) */
+@media screen and (min-width: 1441px) {
+  img {
+    display: block;
+    max-height: 80vh;
+    width: 100%; 
+    height: auto; /* maintain aspect ratio */
+    width: auto; /* maintain aspect ratio */
+    margin: 0 auto; /* center the image */  
+    object-fit: contain;
+  }
+}
+
+.main-content {
+  flex: 1;
+  background-color: #fdfdfd;
+  min-height: 100vh;
+}
